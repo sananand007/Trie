@@ -52,8 +52,7 @@ class Trie(object):
                 current_node = current_node.children[word[i]]
                 i += 1
 
-        # Let's store the full word at the end node so we don't need to
-        # travel back up the tree to reconstruct the word
+        # Let's store the full word at the end node always
         current_node.data = word
 
     def has_word(self,word):
@@ -94,16 +93,13 @@ class Trie(object):
         else:
             queue = [top_node]
 
-        # Perform a breadth first search under the prefix
-        # A cool effect of using BFS as opposed to DFS is that BFS will return
-        # a list of words ordered by increasing length
+        # Perform a BFS to get the words searched Lexicographically
         while queue:
             current_node = queue.pop()
-            if current_node.data != None:
-                # Isn't it nice to not have to go back up the tree?
+            if current_node.data is not None:
                 words.append(current_node.data)
 
-            queue = [node for key, node in current_node.children.items()] + queue
+            queue.extend([node for key, node in current_node.children.items()])
 
         return words
 
@@ -119,28 +115,6 @@ class Trie(object):
         for letter in word:
             curr=curr.children[letter]
         return curr.data
-
-if __name__=='__main__':
-    trie=Trie()
-
-    #TODO: Randomly generate tests here
-    # Defining the Test cases
-    test1 = "Two of the toes in to the toss total trick tim has two bullets"
-    test2 = "This is your last chance. After this, there is no turning back. You take the blue pill - the story ends, you wake up in your bed and believe whatever you want to believe. You take the red pill - you stay in Wonderland and I show you how deep the rabbit-hole goes"
-    test3 = "What is real? How do you define 'real'? If you're talking about what you can feel, what you can smell, what you can taste and see, then 'real' is simply electrical signals interpreted by your brain"
-    tests = [test1,test2,test3]
-    while tests:
-        test=tests.pop(0)
-        clean=re.sub(r"[,.;'\"\-_&$#@?!]+","",test)
-        print(clean)
-        for word in clean.split():
-            #print(word)
-            trie.insert(word)
-        #check the functions here
-        print(trie.has_word('bullets'))
-        print(trie.start_with_prefix("to"))
-        print(trie.has_word('real'))
-        print(trie.start_with_prefix("y"))
 
 
 
