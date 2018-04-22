@@ -23,16 +23,26 @@ def tokentests(pick,trie):
     "test9": "That you are a slave, Neo. Like everyone else you were born into bondage. Into a prison that you cannot taste or see or touch. A prison for your mind",
     "test10": "Neo, sooner or later you're going to realize just as I did that there's a difference between knowing the path and walking the path"
     }
+
     test=testdefs["test"+str(pick)]
-    clean=re.sub(r"[,.;'\"\-_&$#@?!]+","",test)
-    print(clean)
+    clean=re.sub(r"[,.;'\"\-_&$#%@?!]+","",test)
+    print("Test sentence chosen", clean)
     for word in clean.split():
         #print(word)
         trie.insert(word)
-    #check the functions here
-    print("is feel present, ", trie.has_word('feel'))
+
+    # corpus
+    corpus=""
+    for key, val in testdefs.items():corpus+=val
+    cleaned = re.sub(r"[,.;'\"\-_&%#@?!]+","",corpus)
+    corpuslist_=cleaned.split()
+    size=len(corpuslist_)
+    chosenword1 = corpuslist_[np.random.randint(0,size-1)]
+    chosenword2 = corpuslist_[np.random.randint(0,size-1)]
+
+    print("is {} present,".format(chosenword1), trie.has_word(chosenword1))
     print("prefix r, ", trie.start_with_prefix("r"))
-    print("is see present, ", trie.has_word('see'))
+    print("is {} present,".format(chosenword2), trie.has_word(chosenword2))
     print("prefix s, ", trie.start_with_prefix("s"))
 
 
