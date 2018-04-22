@@ -35,22 +35,26 @@ class Trie(object):
         :param word:
         :return:
         '''
-        curr=self.root
-        word_end=True
+        current_node = self.root
+        word_finished = True
 
         for i in range(len(word)):
-            if word[i] in curr.children:
-                curr=curr.children[word[i]]# checking the letter is present or not
+            if word[i] in current_node.children:
+                current_node = current_node.children[word[i]]
             else:
-                # for ever new letter, if not present break create a new child node
-                word_end=False
+                word_finished = False
                 break
-        if not word_end:
-            while i<len(word):
-                curr.add_child(word[i])
-                curr=curr.children[word[i]]
-                i+=1
-        curr.data=word
+
+        # For ever new letter, create a new child node
+        if not word_finished:
+            while i < len(word):
+                current_node.add_child(word[i])
+                current_node = current_node.children[word[i]]
+                i += 1
+
+        # Let's store the full word at the end node so we don't need to
+        # travel back up the tree to reconstruct the word
+        current_node.data = word
 
     def has_word(self,word):
         '''
@@ -76,25 +80,30 @@ class Trie(object):
         '''
         words=[]
         if prefix is None:raise ValueError('Please put a not None prefix')
-        top=self.root
-
-        # Get to the end of the prefix
+        # Determine end-of-prefix node
+        top_node = self.root
         for letter in prefix:
-            if letter in top.children:
-                top=top.children[letter]
+            if letter in top_node.children:
+                top_node = top_node.children[letter]
             else:
-                return words # preifix is not there at all
+                # Prefix not in tree, go no further
+                return words
+        # Get words under prefix
+        if top_node == self.root:
+            queue = [node for key, node in top_node.children.items()]
+        else:
+            queue = [top_node]
 
-        #case '' and get the pointers to the start of the words
-        queue = [node for key, node in top.children.items()] if top==self.root else [top]
-
-        # Lexicographically search using BFS and get the words
+        # Perform a breadth first search under the prefix
+        # A cool effect of using BFS as opposed to DFS is that BFS will return
+        # a list of words ordered by increasing length
         while queue:
-            curr=queue.pop()
-            print(curr.children)
-            if curr.data is not None:
-                words.append(curr.data)
-            queue.append([node for key, node in curr.children.items()])
+            current_node = queue.pop()
+            if current_node.data != None:
+                # Isn't it nice to not have to go back up the tree?
+                words.append(current_node.data)
+
+            queue = [node for key, node in current_node.children.items()] + queue
 
         return words
 
@@ -114,11 +123,12 @@ class Trie(object):
 if __name__=='__main__':
     trie=Trie()
 
+    #TODO: Randomly generate tests here
     # Defining the Test cases
-    test1="You mean I can dodge the bullets"
+    test1 = "Two of the toes in to the toss total trick tim has two bullets"
     test2 = "This is your last chance. After this, there is no turning back. You take the blue pill - the story ends, you wake up in your bed and believe whatever you want to believe. You take the red pill - you stay in Wonderland and I show you how deep the rabbit-hole goes"
     test3 = "What is real? How do you define 'real'? If you're talking about what you can feel, what you can smell, what you can taste and see, then 'real' is simply electrical signals interpreted by your brain"
-    tests = [test1]
+    tests = [test1,test2,test3]
     while tests:
         test=tests.pop(0)
         clean=re.sub(r"[,.;'\"\-_&$#@?!]+","",test)
@@ -126,10 +136,11 @@ if __name__=='__main__':
         for word in clean.split():
             #print(word)
             trie.insert(word)
-
         #check the functions here
         print(trie.has_word('bullets'))
-        print(trie.start_with_prefix("t"))
+        print(trie.start_with_prefix("to"))
+        print(trie.has_word('real'))
+        print(trie.start_with_prefix("y"))
 
 
 
